@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\SendEmailJob;
 use App\Models\Application;
 use Illuminate\Http\Request;
 
@@ -22,15 +23,16 @@ class ApplicationController extends Controller
                 $name,
                 'public'
             );
-
         }
 
-        $application = Application::create([
+    $application = Application::create([
             'user_id' => auth()->user()->id,
             'subject' => $request->subject,
             'message' => $request->message,
             'file_url' => $path ?? null,
         ]);
+
+        dispatch(new SendEmailJob($application));
 
         return redirect()->back();
     }
